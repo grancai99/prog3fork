@@ -18,7 +18,7 @@ struct map_t {
     int map[100][100];
 };
 
-int createMap(/*idk*/);
+int create_map(/*idk*/);
 
 int draw(struct map_t * my_map, int turtle_x, int turtle_y);
 

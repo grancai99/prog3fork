@@ -18,14 +18,14 @@
 //     int map[][];
 // };
 
-int createMap(/*idk*/) {
+int create_map(/*idk*/) {
     //create the map, first two commands, do we need another struct instance?
-
     return 1;
 }
 
 int draw(struct map_t * my_map, int turtle_x, int turtle_y) {
     //print out map
+    printf("Creating map...beep boop\n");
 
     return 1;
 }

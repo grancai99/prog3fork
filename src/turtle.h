@@ -11,9 +11,6 @@
 #ifndef TURTLE_H
 #define TURTLE_H
 
-#include <stdbool.h>
-
-
 enum move_dir_t{BACKWARD =-1, FORWARD =1};
 enum rotate_dir_t{CC =-1, C =1};
 
