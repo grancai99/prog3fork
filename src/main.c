@@ -8,11 +8,11 @@
  * Name: Caitlyn Grant
  */
 
+#include "turtle.h"
+#include "screen.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include "turtle.h"
-#include "screen.h"
 
 /**
  * @brief Program entry point - Runs the ASCII logo receiving commands from standard input
@@ -37,6 +37,10 @@ int main(int argc, char* argv[]) {
     scanf("%d", &x);
     scanf("%d", &y);
 
+    create_map(&my_map, n);
+    set_location(&my_turtle, x, y);
+
+
     printf("n: %d, x: %d, y: %d\n", n, x, y);
 
     while (!eof) {
@@ -50,14 +54,22 @@ int main(int argc, char* argv[]) {
             printf("End reached\n");
             break; //does this work
         }
+        
+        int start_x = my_turtle.x;
+        int start_y = my_turtle.y;
 
         if (strncmp(cmd, "FD", 2) == 0) {
             turtle_move = FORWARD;
-            move(&my_turtle, turtle_move);
-            //if pendown, add mark
+            char mark = move(&my_turtle, turtle_move, my_map.size);
+
+            if (!my_turtle.penUp)
+                add_mark(&my_map, mark, start_x, start_y);
         } else if (strncmp(cmd, "BK", 2) == 0) {
             turtle_move = BACKWARD;
-            move(&my_turtle, turtle_move);
+            char mark = move(&my_turtle, turtle_move, my_map.size);
+
+            if (!my_turtle.penUp)
+                add_mark(&my_map, mark, start_x, start_y);
         } else if (strncmp(cmd, "RT", 2) == 0) {
             turtle_rotate = C;
             rotate(&my_turtle, turtle_rotate);
@@ -92,3 +104,25 @@ int main(int argc, char* argv[]) {
 
 }
 
+//TODO: possibly pass in function pointer to the add_mark????
+
+
+
+/**
+* @file myassignmentfile.c
+* @brief Short description of my assignment file
+*
+* Course: CPE2600
+* Section: 011
+* Assignment: Awesome Game
+* Name: John Smith
+*
+* Algorithm:
+* - Retrieve the input file name from the command line arguments
+* - Ensure the file name exists and is valid
+* - Open the file
+* - Read the file to retrieve user data and configuration settings
+* -
+* - etc.
+* -
+*/

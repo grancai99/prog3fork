@@ -21,9 +21,11 @@ struct turtle_t {
     bool penUp;
 };
 
+int set_location(struct turtle_t * my_turtle, int x, int y);
+
 int decide_instruction(char * command);
 
-int move(struct turtle_t * my_turtle, enum move_dir_t move);
+char move(struct turtle_t * my_turtle, enum move_dir_t move, int n);
 
 int rotate(struct turtle_t * my_turtle, enum rotate_dir_t rotate);
 
