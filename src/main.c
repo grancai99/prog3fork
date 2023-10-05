@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <ctype.h>
 
 void ld(struct turtle_t * my_turtle_ptr, struct map_t * my_map_ptr, FILE * file);
 void decide_instruction(struct turtle_t * my_turtle_ptr, struct map_t * my_map_ptr, char cmd[2]); //put in header file
@@ -32,8 +33,7 @@ void ld(struct turtle_t * my_turtle_ptr, struct map_t * my_map_ptr, FILE * file)
 
     fscanf(file, "%d", &n);
     fscanf(file, "%d", &x);
-    fscanf(file, "%d", &y); //TODO: what if return 0
-    //printf(failed)
+    fscanf(file, "%d", &y);
 
     create_map(my_map_ptr, n);
     set_location(my_turtle_ptr, x, y, n);
@@ -54,7 +54,7 @@ void ld(struct turtle_t * my_turtle_ptr, struct map_t * my_map_ptr, FILE * file)
  * @param cmd[2] - a two character string that is the user's input
  */
 void decide_instruction(struct turtle_t * my_turtle_ptr, struct map_t * my_map_ptr, char cmd[2]) {
-    
+
     //Source: https://riptutorial.com/c/example/5408/dereferencing-a-pointer-to-a-struct
     int start_x = my_turtle_ptr->x;
     int start_y = my_turtle_ptr->y;
@@ -114,10 +114,10 @@ int main(int argc, char* argv[]) {
     bool valid_n = check_valid_dimensions(n);
     bool valid_x_y = check_valid_x_y(x, y, n);
     if (!valid_x_y) {
-        printf("Error: the start position of the turtle must be greater than 0 and less than the map dimensions");
+        printf("Error: the start position of the turtle must be greater than 0 and less than the map dimensions\n");
         eof = true;
     } else if (!valid_n) {
-        printf("Error: the map dimensions must be greater than 0 and less than or equal to 100");
+        printf("Error: the map dimensions must be greater than 0 and less than or equal to 100\n");
         eof = true;
     }
 
@@ -126,27 +126,28 @@ int main(int argc, char* argv[]) {
 
     while (!eof) {
         printf("Enter a command for the turtle: ");
-        
         int scanf_return = scanf("%s", cmd);
-        printf("cd: %s\n", cmd);
         
         if (scanf_return < 0) {
             eof = true;
-            printf("End of file reached\n");
+            printf("\nEnd of file reached\n");
             break;
         }
+
+        //Source: https://www.geeksforgeeks.org/toupper-function-in-c/
+        cmd[0] = toupper(cmd[0]);
+        cmd[1] = toupper(cmd[1]);
 
         //If the LD file command is entered, call a function that will loop through the lines
         //Else process the command
         if (strncmp(cmd, "LD", 2) == 0) {
-            char file_name[10]; //FIX ME
+            char file_name[50];
             printf("Please enter a file name: ");
             scanf("%s", file_name);
 
             FILE* ptr = fopen(file_name, "r");
             if (ptr == NULL) {
-                printf("File does not exist");
-                return 0;
+                printf("File does not exist\n");
             } else {
                 ld(&my_turtle, &my_map, ptr);
             }
@@ -154,35 +155,4 @@ int main(int argc, char* argv[]) {
             decide_instruction(&my_turtle, &my_map, cmd);
         }
     }
-
-    //case "", run each funcction
-
-
-    /*
-    The scanf in C returns three types of values:
-        >0: The number of values converted and assigned successfully.
-        0: No value was assigned.
-        <0: Read error encountered or end-of-file(EOF) reached before any assignment was made.
-*/
-
 }
-
-
-/**
-* @file myassignmentfile.c
-* @brief Short description of my assignment file
-*
-* Course: CPE2600
-* Section: 011
-* Assignment: Awesome Game
-* Name: John Smith
-*
-* Algorithm:
-* - Retrieve the input file name from the command line arguments
-* - Ensure the file name exists and is valid
-* - Open the file
-* - Read the file to retrieve user data and configuration settings
-* -
-* - etc.
-* -
-*/

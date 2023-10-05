@@ -1,0 +1,7 @@
+I really enjoyed this project, it was a lot of fun. It applied many of the concepts we are using in class.
+
+In the readme it says:
+The dimension n of the screen must be >=0 and <100
+The starting location of the turtle must be >0 and <n
+
+I made a 0x0 grid send an error and a turtle starting at (0,0) be valid

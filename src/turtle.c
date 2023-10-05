@@ -93,7 +93,6 @@ char move(struct turtle_t *my_turtle_ptr) {
     } else if (facing == 45 || facing == 225) {
         return '/';
     } else if (facing == 90 || facing == 270) {
-        printf("made it into 270 or 90");
         return '-';
     } else if (facing == 135 || facing == 315) {
         return '\\';
