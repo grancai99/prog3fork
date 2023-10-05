@@ -14,34 +14,115 @@
 #include <stdbool.h>
 #include <string.h>
 
+void ld(struct turtle_t * my_turtle_ptr, struct map_t * my_map_ptr, FILE * file);
+void decide_instruction(struct turtle_t * my_turtle_ptr, struct map_t * my_map_ptr, char cmd[2]); //put in header file
+
+/**
+ * @brief This function loops through the lines of a file
+ * and reads them as command inputs
+ *
+ * @param my_turtle_ptr - a pointer to the structure for the turtle
+ * @param my_map_ptr - a pointer to the structure for the map
+ * @param file - the file that contains the input
+ */
+void ld(struct turtle_t * my_turtle_ptr, struct map_t * my_map_ptr, FILE * file) {
+    
+    int n, x, y;
+    char cmd[2];
+
+    fscanf(file, "%d", &n);
+    fscanf(file, "%d", &x);
+    fscanf(file, "%d", &y); //TODO: what if return 0
+    //printf(failed)
+
+    create_map(my_map_ptr, n);
+    set_location(my_turtle_ptr, x, y, n);
+
+    //Source: https://www.geeksforgeeks.org/scanf-and-fscanf-in-c/ 
+    while (fscanf(file, "%s", cmd) == 1) {
+        printf("%s\n", cmd);
+        decide_instruction(my_turtle_ptr, my_map_ptr, cmd);
+    }
+}
+
+/**
+ * @brief This function categorizes the user's input into recognized commands
+ * and initiates the appropriate action
+ *
+ * @param my_turtle_ptr - a pointer to the structure for the turtle
+ * @param my_map_ptr - a pointer to the structure for the map
+ * @param cmd[2] - a two character string that is the user's input
+ */
+void decide_instruction(struct turtle_t * my_turtle_ptr, struct map_t * my_map_ptr, char cmd[2]) {
+    
+    //Source: https://riptutorial.com/c/example/5408/dereferencing-a-pointer-to-a-struct
+    int start_x = my_turtle_ptr->x;
+    int start_y = my_turtle_ptr->y;
+
+    if (strncmp(cmd, "FD", 2) == 0) {
+        my_turtle_ptr->move = FORWARD;
+        char mark = move(my_turtle_ptr);
+
+        if (!my_turtle_ptr->penUp)
+            add_mark(my_map_ptr, mark, start_x, start_y);
+    } else if (strncmp(cmd, "BK", 2) == 0) {
+        my_turtle_ptr->move = BACKWARD;
+        char mark = move(my_turtle_ptr);
+
+        if (!my_turtle_ptr->penUp)
+            add_mark(my_map_ptr, mark, start_x, start_y);
+    } else if (strncmp(cmd, "RT", 2) == 0) {
+        my_turtle_ptr->rotate = C;
+        rotate(my_turtle_ptr);
+    } else if (strncmp(cmd, "LT", 2) == 0) {
+        my_turtle_ptr->rotate = CC;
+        rotate(my_turtle_ptr);
+    } else if (strncmp(cmd, "PU", 2) == 0) {
+        pen_up(my_turtle_ptr, true);
+    } else if (strncmp(cmd, "PD", 2) == 0) {
+        pen_up(my_turtle_ptr, false);
+    } else {
+        printf("Invalid command, please try again\n");
+    }
+
+    draw(my_map_ptr, my_turtle_ptr->x, my_turtle_ptr->y);
+}
+
+
 /**
  * @brief Program entry point - Runs the ASCII logo receiving commands from standard input
  */
 int main(int argc, char* argv[]) {
-    enum move_dir_t turtle_move;
-    enum rotate_dir_t turtle_rotate;
-
     struct turtle_t my_turtle;
     struct map_t my_map;
 
     int n, x, y;
     char cmd[2];
 
+    //End of file, will end the program under appropriate conditions
     bool eof = false;
 
-    //Source: https://www.geeksforgeeks.org/scanf-in-c/
     printf("Enter the dimensions of the map: ");
+    //Source: https://www.geeksforgeeks.org/scanf-in-c/
     scanf("%d", &n);
 
     printf("Enter the x and y positions of turtle with space between: ");
     scanf("%d", &x);
     scanf("%d", &y);
 
+    //Verify x, y, and n are all valid. Exit and print error message if they're not
+    bool valid_n = check_valid_dimensions(n);
+    bool valid_x_y = check_valid_x_y(x, y, n);
+    if (!valid_x_y) {
+        printf("Error: the start position of the turtle must be greater than 0 and less than the map dimensions");
+        eof = true;
+    } else if (!valid_n) {
+        printf("Error: the map dimensions must be greater than 0 and less than or equal to 100");
+        eof = true;
+    }
+
     create_map(&my_map, n);
-    set_location(&my_turtle, x, y);
-
-
-    printf("n: %d, x: %d, y: %d\n", n, x, y);
+    set_location(&my_turtle, x, y, n);
 
     while (!eof) {
         printf("Enter a command for the turtle: ");
@@ -51,45 +132,27 @@ int main(int argc, char* argv[]) {
         
         if (scanf_return < 0) {
             eof = true;
-            printf("End reached\n");
-            break; //does this work
+            printf("End of file reached\n");
+            break;
         }
-        
-        int start_x = my_turtle.x;
-        int start_y = my_turtle.y;
 
-        if (strncmp(cmd, "FD", 2) == 0) {
-            turtle_move = FORWARD;
-            char mark = move(&my_turtle, turtle_move, my_map.size);
-
-            if (!my_turtle.penUp)
-                add_mark(&my_map, mark, start_x, start_y);
-        } else if (strncmp(cmd, "BK", 2) == 0) {
-            turtle_move = BACKWARD;
-            char mark = move(&my_turtle, turtle_move, my_map.size);
-
-            if (!my_turtle.penUp)
-                add_mark(&my_map, mark, start_x, start_y);
-        } else if (strncmp(cmd, "RT", 2) == 0) {
-            turtle_rotate = C;
-            rotate(&my_turtle, turtle_rotate);
-        } else if (strncmp(cmd, "LT", 2) == 0) {
-            turtle_rotate = CC;
-            rotate(&my_turtle, turtle_rotate);
-        } else if (strncmp(cmd, "PU", 2) == 0) {
-            pen_up(&my_turtle, true);
-        } else if (strncmp(cmd, "PD", 2) == 0) {
-            pen_up(&my_turtle, false);
-        } else if (strncmp(cmd, "LD", 2) == 0) {
+        //If the LD file command is entered, call a function that will loop through the lines
+        //Else process the command
+        if (strncmp(cmd, "LD", 2) == 0) {
             char file_name[10]; //FIX ME
             printf("Please enter a file name: ");
             scanf("%s", file_name);
-            ld(file_name);
-        } else {
-            printf("didn't catch anything\n");
-        }
 
-        draw(&my_map, my_turtle.x, my_turtle.y);
+            FILE* ptr = fopen(file_name, "r");
+            if (ptr == NULL) {
+                printf("File does not exist");
+                return 0;
+            } else {
+                ld(&my_turtle, &my_map, ptr);
+            }
+        } else {
+            decide_instruction(&my_turtle, &my_map, cmd);
+        }
     }
 
     //case "", run each funcction
@@ -103,9 +166,6 @@ int main(int argc, char* argv[]) {
 */
 
 }
-
-//TODO: possibly pass in function pointer to the add_mark????
-
 
 
 /**

@@ -13,94 +13,118 @@
 #include <stdbool.h>
 #include <string.h>
 
-// struct turtle_t {
-//     int x;
-//     int y;
-//     int facing;
-//     bool penUp;
-// };
+/**
+ * @brief This function checks whether x and y are valid values
+ *
+ * @param x - the proposed turtle x coordinate
+ * @param y - the proposed turtle y coordinate
+ * @param n - the proposed dimension of the map
+ *
+ * @return false - n is not valid
+ * @return true - n is valid
+ */
+bool check_valid_x_y(int x, int y, int n) {
+    if (x >= 0 && x < n && y >= 0 && y < n) {
+        return true;
+    }
+    return false;
+}
 
-int set_location(struct turtle_t * my_turtle, int x, int y) {
-    my_turtle->x = x;
-    my_turtle->y = y;
-    my_turtle->facing = 0;
-    my_turtle->penUp = false;
-    
-    return 1;
+/**
+ * @brief This function sets the default values for the turtle
+ *
+ * @param my_turtle_ptr - a pointer to the structure for the turtle
+ * @param my_map_ptr - a pointer to the structure for the map
+ * @param x - the initial x coordinate
+ * @param y - the initial y coordinate
+ * @param n - the dimensions of the map
+ */
+void set_location(struct turtle_t *my_turtle_ptr, int x, int y, int n) {
+    my_turtle_ptr->x = x;
+    my_turtle_ptr->y = y;
+    my_turtle_ptr->facing = 0;
+    my_turtle_ptr->penUp = false;
+    my_turtle_ptr->boundaries = n;
+    my_turtle_ptr->move = 1;
+    my_turtle_ptr->rotate = 1;
 }  
 
-int decide_instruction(char * command/*, int * add_mark(struct map_t * my_map, char mark, int x, int y)*/) {
-    //case when: instructions
-    //create map on first two
+/**
+ * @brief This function moves the turtle based off commands FD and BK
+ *
+ * @param my_turtle_ptr - a pointer to the structure for the turtle
+ * 
+ * @return char - the character that should go on the map where the turtle just was
+ */
+char move(struct turtle_t *my_turtle_ptr) {
 
-    return 1;
-}
-
-char move(struct turtle_t * my_turtle, enum move_dir_t move, int size) {
-    printf("turtle go move\n");
-    printf("turtle is (%d, %d) and facing %d\n", my_turtle->x, my_turtle->y, my_turtle->facing);
-
-    //Source: https://riptutorial.com/c/example/5408/dereferencing-a-pointer-to-a-struct
-    int facing = my_turtle->facing;
-    
-    if (45 <= facing && facing <= 135)
-        (my_turtle->x) += move;
-    else if (225 <= facing && facing <= 360)
-        (my_turtle->x) -= move;
-
-    if (135 <= facing && facing <= 225)
-        (my_turtle->y) += move;
-    else if (facing <= 45 || 315 <= facing)
-        (my_turtle->y) -= move;
-
-    if (my_turtle->x < 0)
-        my_turtle->x = size - 1;
-    else if (my_turtle->x >= size)
-        my_turtle->x = 0;
-
-    if (my_turtle->y < 0)
-        my_turtle->y = size -1;
-    else if (my_turtle->y >= size)
-        my_turtle->y = 0;
-
-    printf("turtle is (%d, %d) and facing %d\n", my_turtle->x, my_turtle->y, my_turtle->facing);
-
-    if (facing % 180 == 0)
-        return '|';
-    else if (facing - 45 % 180 == 0)
-        return '/';
-    else if (facing - 90 % 180 == 0)
-        return '-';
-    else if (facing - 135 % 180 == 0)
-        return '\\';
-
-    //1 for success TODO
-    return 1;
-}
-
-int rotate(struct turtle_t * my_turtle, enum rotate_dir_t rotate) {
-    printf("turlte go rotate\n");
-    (my_turtle->facing) += rotate * 45;
-    
-    if (my_turtle->facing >= 360) {
-        (my_turtle->facing) = 0;
-    } else if (my_turtle->facing < 0) {
-        (my_turtle->facing) = 315;
+    //Based off the direction the turtle is facing, change appropriate x and y coordinates for movement
+    int facing = my_turtle_ptr->facing;
+    if (45 <= facing && facing <= 135) {
+        (my_turtle_ptr->x) += my_turtle_ptr->move;
+    } else if (225 <= facing && facing <= 360) {
+        (my_turtle_ptr->x) -= my_turtle_ptr->move;
     }
 
-    //1 for success
-    return 1;
+    if (135 <= facing && facing <= 225) {
+        (my_turtle_ptr->y) += my_turtle_ptr->move;
+    } else if (facing <= 45 || 315 <= facing) {
+        (my_turtle_ptr->y) -= my_turtle_ptr->move;
+    }
+
+    //If the turtle is out of bounds, wrap around
+    int boundaries = my_turtle_ptr->boundaries;
+    if (my_turtle_ptr->x < 0) {
+        my_turtle_ptr->x = boundaries - 1;
+    } else if (my_turtle_ptr->x >= boundaries) {
+        my_turtle_ptr->x = 0;
+    }
+
+    if (my_turtle_ptr->y < 0) {
+        my_turtle_ptr->y = boundaries - 1;
+    } else if (my_turtle_ptr->y >= boundaries) {
+        my_turtle_ptr->y = 0;
+    }
+
+    //Based off the direction the turtle is facing, return the proper character
+    //that goes in the square the turtle just left
+    if (facing == 0 || facing == 180) {
+        return '|';
+    } else if (facing == 45 || facing == 225) {
+        return '/';
+    } else if (facing == 90 || facing == 270) {
+        printf("made it into 270 or 90");
+        return '-';
+    } else if (facing == 135 || facing == 315) {
+        return '\\';
+    }
+
+    return ' ';
 }
 
-int pen_up(struct turtle_t * my_turtle, bool up) {
-    my_turtle->penUp = up;
+/**
+ * @brief This function rotates the turtle based off commands RT and LT
+ *
+ * @param my_turtle_ptr - a pointer to the structure for the turtle
+ */
+void rotate(struct turtle_t *my_turtle_ptr) {
+    //Change the turtle's facing direction
+    (my_turtle_ptr->facing) += my_turtle_ptr->rotate * 45;
     
-    //1 for success
-    return 1;
+    //If turtle turns past 0 or past 360, reset around
+    if (my_turtle_ptr->facing >= 360) {
+        (my_turtle_ptr->facing) = 0;
+    } else if (my_turtle_ptr->facing < 0) {
+        (my_turtle_ptr->facing) = 315;
+    }
 }
 
-int ld(char * file_name) {
-    //read file line by line, call decide instructions
-
-    return 1;
+/**
+ * @brief This function sets the turtle's pen up or down
+ *
+ * @param my_turtle_ptr - a pointer to the structure for the turtle
+ * @param up - whether the pen should be set to up or down
+ */
+void pen_up(struct turtle_t *my_turtle_ptr, bool up) {
+    my_turtle_ptr->penUp = up;
 }

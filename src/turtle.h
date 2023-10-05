@@ -11,26 +11,38 @@
 #ifndef TURTLE_H
 #define TURTLE_H
 
+#include <stdbool.h>
+
 enum move_dir_t{BACKWARD =-1, FORWARD =1};
 enum rotate_dir_t{CC =-1, C =1};
 
+/**
+* @brief - Structure to manage the turtle
+* @property x - current x coordinate
+* @property y - current y coordinate
+* @property facing - current degree turtle is facing (0 to 360)
+* @property penUp - whether the turtle's pen is up or down
+* @property move_dir_t - whether turtle is moving fd or bk
+* @property rotate_dir_t - whether turtle is rotating rt or lt
+*/
 struct turtle_t {
     int x;
     int y;
     int facing;
     bool penUp;
+    int boundaries;
+    enum move_dir_t move;
+    enum rotate_dir_t rotate;
 };
 
-int set_location(struct turtle_t * my_turtle, int x, int y);
+bool check_valid_x_y(int x, int y, int n);
 
-int decide_instruction(char * command);
+void set_location(struct turtle_t *my_turtle_ptr, int x, int y, int n);
 
-char move(struct turtle_t * my_turtle, enum move_dir_t move, int n);
+char move(struct turtle_t *my_turtle_ptr);
 
-int rotate(struct turtle_t * my_turtle, enum rotate_dir_t rotate);
+void rotate(struct turtle_t *my_turtle_ptr);
 
-int pen_up(struct turtle_t * my_turtle, bool up);
-
-int ld(char * fileName);
+void pen_up(struct turtle_t *my_turtle_ptr, bool up);
 
 #endif
